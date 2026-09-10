@@ -24,7 +24,7 @@ jobs:
     steps:
 
       # --------------------------------
-      # 1. Get source code
+      # 1. Checkout repository
       # --------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,10 +44,10 @@ jobs:
         run: npm install
 
       # --------------------------------
-      # 4. Build React + Electron
+      # 4. Build FLIPLY
       # --------------------------------
       - name: Build FLIPLY
-        run: npm run dist:win
+        run: npm run dist:win -- --publish never
 
       # --------------------------------
       # 5. Build Windows Screen Saver
@@ -86,12 +86,15 @@ jobs:
             -Destination "dist-electron\FLIPLY.scr" `
             -Force
 
+          Write-Host "FLIPLY.scr copied successfully."
+
       # --------------------------------
-      # 7. Verify installer
+      # 7. Verify Installer
       # --------------------------------
       - name: Verify FLIPLY installer
         shell: powershell
         run: |
+          Write-Host ""
           Write-Host "Files in dist-electron:"
           Get-ChildItem -Path "dist-electron" -Recurse
 
@@ -105,11 +108,11 @@ jobs:
 
           Write-Host ""
           Write-Host "======================================"
-          Write-Host "FLIPLY installer created successfully"
+          Write-Host "FLIPLY BUILD SUCCESSFUL"
           Write-Host "======================================"
 
       # --------------------------------
-      # 8. Upload installer artifact
+      # 8. Upload Installer Artifact
       # --------------------------------
       - name: Upload FLIPLY Installer
         uses: actions/upload-artifact@v4
@@ -140,5 +143,5 @@ jobs:
 
           Write-Host ""
           Write-Host "======================================"
-          Write-Host "FLIPLY Release Created"
+          Write-Host "FLIPLY RELEASE CREATED"
           Write-Host "======================================"
