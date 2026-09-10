@@ -2,9 +2,15 @@ name: Build FLIPLY Windows Release
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+    tags:
+      - "v*"
+
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
+
   workflow_dispatch:
 
 jobs:
@@ -12,26 +18,41 @@ jobs:
     name: Build FLIPLY Windows App
     runs-on: windows-latest
 
+    permissions:
+      contents: write
+
     steps:
 
+      # --------------------------------
+      # 1. Get source code
+      # --------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # --------------------------------
+      # 2. Setup Node.js
+      # --------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
+      # --------------------------------
+      # 3. Install dependencies
+      # --------------------------------
       - name: Install dependencies
         run: npm install
 
-      - name: Build React Web App
-        run: npm run build
+      # --------------------------------
+      # 4. Build React + Electron
+      # --------------------------------
+      - name: Build FLIPLY
+        run: npm run dist:win
 
-      - name: Compile Electron Main Process
-        run: npm run build:electron
-
-      - name: Compile Windows Native Screen Saver
+      # --------------------------------
+      # 5. Build Windows Screen Saver
+      # --------------------------------
+      - name: Build Windows Screen Saver
         shell: powershell
         run: |
           if (!(Test-Path "build")) {
@@ -54,27 +75,21 @@ jobs:
 
           Write-Host "FLIPLY.scr created successfully."
 
-      - name: Verify Electron files
+      # --------------------------------
+      # 6. Copy Screen Saver
+      # --------------------------------
+      - name: Copy Screen Saver
         shell: powershell
         run: |
-          Write-Host "Checking compiled Electron files..."
+          Copy-Item `
+            -Path "build\FLIPLY.scr" `
+            -Destination "dist-electron\FLIPLY.scr" `
+            -Force
 
-          if (!(Test-Path "electron-dist\main.cjs")) {
-            throw "electron-dist\main.cjs was not created."
-          }
-
-          if (!(Test-Path "electron-dist\preload.cjs")) {
-            throw "electron-dist\preload.cjs was not created."
-          }
-
-          Write-Host "Electron files created successfully."
-
-      - name: Build Windows Installer
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run dist:win
-
-      - name: Verify Windows Installer
+      # --------------------------------
+      # 7. Verify installer
+      # --------------------------------
+      - name: Verify FLIPLY installer
         shell: powershell
         run: |
           Write-Host "Files in dist-electron:"
@@ -84,25 +99,46 @@ jobs:
             throw "FLIPLY-Setup.exe was not created."
           }
 
-          if (!(Test-Path "dist-electron\FLIPLY-Portable.exe")) {
-            throw "FLIPLY-Portable.exe was not created."
+          if (!(Test-Path "dist-electron\FLIPLY.scr")) {
+            throw "FLIPLY.scr was not created."
           }
 
-          Write-Host "FLIPLY installer created successfully."
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "FLIPLY installer created successfully"
+          Write-Host "======================================"
 
-      - name: Copy Screen Saver
-        shell: powershell
-        run: |
-          Copy-Item `
-            -Path "build\FLIPLY.scr" `
-            -Destination "dist-electron\FLIPLY.scr" `
-            -Force
-
+      # --------------------------------
+      # 8. Upload installer artifact
+      # --------------------------------
       - name: Upload FLIPLY Installer
         uses: actions/upload-artifact@v4
         with:
-          name: FLIPLY-Windows
+          name: FLIPLY-Setup
           path: |
             dist-electron/FLIPLY-Setup.exe
             dist-electron/FLIPLY.scr
           if-no-files-found: error
+
+      # --------------------------------
+      # 9. Create GitHub Release
+      # --------------------------------
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+
+          Write-Host "Creating FLIPLY release: $tag"
+
+          gh release create $tag `
+            "dist-electron/FLIPLY-Setup.exe" `
+            --title "FLIPLY $tag" `
+            --generate-notes
+
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "FLIPLY Release Created"
+          Write-Host "======================================"
