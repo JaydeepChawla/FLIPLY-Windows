@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18191c" />
+      <stop offset="100%" stop-color="#08080a" />
+    </linearGradient>
+    <linearGradient id="cardTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a2c33" />
+      <stop offset="100%" stop-color="#1a1c22" />
+    </linearGradient>
+    <linearGradient id="cardBottom" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14151a" />
+      <stop offset="100%" stop-color="#1e2027" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- App Background (Rounded Squircle) -->
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bgGrad)" stroke="rgba(255,255,255,0.08)" stroke-width="3" filter="url(#shadow)" />
+
+  <!-- Split-Flap Card Upper Half -->
+  <path d="M 120 120 L 392 120 C 405 120 416 131 416 144 L 416 250 L 96 250 L 96 144 C 96 131 107 120 120 120 Z" fill="url(#cardTop)" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
+
+  <!-- Split-Flap Card Lower Half -->
+  <path d="M 96 262 L 416 262 L 416 368 C 416 381 405 392 392 392 L 120 392 C 107 392 96 381 96 368 Z" fill="url(#cardBottom)" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
+
+  <!-- Side Hinge Notches -->
+  <rect x="92" y="250" width="8" height="12" rx="2" fill="#0c0d10" />
+  <rect x="412" y="250" width="8" height="12" rx="2" fill="#0c0d10" />
+
+  <!-- Center Slit Divider -->
+  <rect x="96" y="250" width="320" height="12" fill="#070709" />
+  <line x1="96" y1="256" x2="416" y2="256" stroke="rgba(0,0,0,0.8)" stroke-width="2" />
+
+  <!-- Minimalist Geometric 'F' Cutout Motif in Pristine White -->
+  <!-- Top Bar of F -->
+  <path d="M 180 160 L 332 160 C 338 160 342 164 342 170 L 342 196 C 342 202 338 206 332 206 L 226 206 L 226 238 L 180 238 Z" fill="#f4f4f5" />
+
+  <!-- Center Crossbar and Stem of F -->
+  <path d="M 180 274 L 226 274 L 226 288 L 302 288 C 308 288 312 292 312 298 L 312 320 C 312 326 308 330 302 330 L 226 330 L 226 352 L 180 352 Z" fill="#e4e4e7" />
+</svg>

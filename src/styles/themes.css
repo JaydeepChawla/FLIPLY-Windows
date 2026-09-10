@@ -1,0 +1,135 @@
+/**
+ * FLIPLY — Theme Color Definitions
+ */
+
+:root {
+  --flip-bg: #050505;
+  --flip-card-bg: #141414;
+  --flip-card-divider: #000000;
+  --flip-text-color: #ededed;
+  --flip-text-shadow: rgba(0, 0, 0, 0.7);
+  --flip-border: rgba(255, 255, 255, 0.05);
+  --flip-accent: #ffffff;
+  --flip-subtle: #666666;
+  --flip-hinge: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='pure-dark'] {
+  --flip-bg: #050505;
+  --flip-card-bg: #141414;
+  --flip-card-divider: #000000;
+  --flip-text-color: #ededed;
+  --flip-text-shadow: rgba(0, 0, 0, 0.7);
+  --flip-border: rgba(255, 255, 255, 0.05);
+  --flip-accent: #ffffff;
+  --flip-subtle: #737373;
+  --flip-hinge: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] {
+  --flip-bg: #0f1117;
+  --flip-card-bg: #1c202a;
+  --flip-card-divider: #0b0d13;
+  --flip-text-color: #f1f5f9;
+  --flip-text-shadow: rgba(0, 0, 0, 0.6);
+  --flip-border: rgba(255, 255, 255, 0.08);
+  --flip-accent: #cbd5e1;
+  --flip-subtle: #788296;
+  --flip-hinge: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='light'] {
+  --flip-bg: #f4f4f2;
+  --flip-card-bg: #e5e5e1;
+  --flip-card-divider: #d4d4cd;
+  --flip-text-color: #1c1917;
+  --flip-text-shadow: rgba(255, 255, 255, 0.4);
+  --flip-border: rgba(0, 0, 0, 0.08);
+  --flip-accent: #292524;
+  --flip-subtle: #78716c;
+  --flip-hinge: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='green'] {
+  --flip-bg: #07120c;
+  --flip-card-bg: #112217;
+  --flip-card-divider: #040b07;
+  --flip-text-color: #76e4a2;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(118, 228, 162, 0.12);
+  --flip-accent: #a7f3d0;
+  --flip-subtle: #3b7754;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='blue'] {
+  --flip-bg: #070f1a;
+  --flip-card-bg: #101d31;
+  --flip-card-divider: #040911;
+  --flip-text-color: #70bcf8;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(112, 188, 248, 0.12);
+  --flip-accent: #bae6fd;
+  --flip-subtle: #3d6c96;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='red'] {
+  --flip-bg: #140809;
+  --flip-card-bg: #261214;
+  --flip-card-divider: #0a0304;
+  --flip-text-color: #f87171;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(248, 113, 113, 0.12);
+  --flip-accent: #fecaca;
+  --flip-subtle: #883a3c;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='orange'] {
+  --flip-bg: #140c07;
+  --flip-card-bg: #271910;
+  --flip-card-divider: #0a0502;
+  --flip-text-color: #fb923c;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(251, 146, 60, 0.12);
+  --flip-accent: #fed7aa;
+  --flip-subtle: #8e4e24;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='yellow'] {
+  --flip-bg: #141206;
+  --flip-card-bg: #26220f;
+  --flip-card-divider: #0a0902;
+  --flip-text-color: #facc15;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(250, 204, 21, 0.12);
+  --flip-accent: #fef08a;
+  --flip-subtle: #847420;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='purple'] {
+  --flip-bg: #0f0817;
+  --flip-card-bg: #20122e;
+  --flip-card-divider: #07030c;
+  --flip-text-color: #c084fc;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(192, 132, 252, 0.12);
+  --flip-accent: #e9d5ff;
+  --flip-subtle: #693f92;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='pink'] {
+  --flip-bg: #140810;
+  --flip-card-bg: #281322;
+  --flip-card-divider: #0a0307;
+  --flip-text-color: #f472b6;
+  --flip-text-shadow: rgba(0, 0, 0, 0.8);
+  --flip-border: rgba(244, 114, 182, 0.12);
+  --flip-accent: #fbcfe8;
+  --flip-subtle: #8d3b68;
+  --flip-hinge: rgba(0, 0, 0, 0.45);
+}

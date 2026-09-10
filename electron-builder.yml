@@ -1,0 +1,45 @@
+appId: com.fliply.clock
+productName: FLIPLY
+copyright: Copyright © 2026 FLIPLY
+directories:
+  output: dist-electron
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+
+extraResources:
+  - from: build/FLIPLY.scr
+    to: FLIPLY.scr
+    filter:
+      - '**/*'
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: public/icons/icon-512.png
+  artifactName: ${productName}-${version}-${target}.${ext}
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: FLIPLY
+  installerIcon: public/icons/icon-512.ico
+  uninstallerIcon: public/icons/icon-512.ico
+  include: electron/screensaver/installer.nsh
+  artifactName: FLIPLY-Setup.${ext}
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+
+portable:
+  artifactName: FLIPLY-Portable.${ext}

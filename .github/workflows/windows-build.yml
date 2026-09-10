@@ -1,0 +1,59 @@
+name: Build FLIPLY Windows Release
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows App, Setup, and Screen Saver (.scr)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React Web App
+        run: npm run build
+
+      - name: Compile Windows Native Screen Saver (.scr)
+        run: |
+          if (!(Test-Path "build")) { New-Item -ItemType Directory -Path "build" -Force }
+          $csc = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          Write-Host "Compiling FLIPLY.scr with $csc..."
+          & $csc /target:winexe /optimize+ /platform:anycpu /out:build\FLIPLY.scr electron\screensaver\FLIPLY_ScreenSaver.cs /reference:System.Windows.Forms.dll,System.Drawing.dll
+          if (!(Test-Path "build\FLIPLY.scr")) { throw "Failed to build FLIPLY.scr" }
+          Write-Host "FLIPLY.scr generated successfully!"
+
+      - name: Package Windows Executables & Installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --x64
+
+      - name: Copy FLIPLY.scr to artifacts directory
+        run: |
+          if (!(Test-Path "dist-electron")) { New-Item -ItemType Directory -Path "dist-electron" -Force }
+          Copy-Item -Path "build\FLIPLY.scr" -Destination "dist-electron\FLIPLY.scr" -Force
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FLIPLY-Windows-Binaries
+          path: |
+            dist-electron/FLIPLY-Setup.exe
+            dist-electron/FLIPLY-Portable.exe
+            dist-electron/FLIPLY.scr
+            dist-electron/win-unpacked/FLIPLY.exe
+          if-no-files-found: error

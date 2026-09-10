@@ -1,0 +1,6 @@
+{
+  "name": "FLIPLY",
+  "description": "Minimalist realistic flip clock that functions as a web app, Windows desktop application, and Windows screen saver (.scr).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
