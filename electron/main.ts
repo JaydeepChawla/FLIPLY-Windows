@@ -27,9 +27,6 @@ const settingsFilePath = path.join(
   'settings.json'
 );
 
-/**
- * Parse Windows Command Line arguments
- */
 function parseCommandLineArgs(
   argv: string[]
 ): ScreenSaverArgs {
@@ -43,26 +40,19 @@ function parseCommandLineArgs(
   for (let i = 0; i < args.length; i++) {
     const arg = args[i].toLowerCase();
 
-    // /s : Run Screen Saver
     if (
       arg === '/s' ||
       arg === '-s' ||
       arg === '--screensaver'
     ) {
       isScreenSaver = true;
-    }
-
-    // /c : Configure Screen Saver
-    else if (
+    } else if (
       arg.startsWith('/c') ||
       arg.startsWith('-c') ||
       arg === '--screensaver-config'
     ) {
       isConfig = true;
-    }
-
-    // /p <HWND> : Preview
-    else if (
+    } else if (
       arg === '/p' ||
       arg === '-p'
     ) {
@@ -72,12 +62,7 @@ function parseCommandLineArgs(
         previewHwnd = args[i + 1];
         i++;
       }
-    }
-
-    // /p:<HWND>
-    else if (
-      arg.startsWith('/p:')
-    ) {
+    } else if (arg.startsWith('/p:')) {
       isPreview = true;
       previewHwnd = arg.substring(3);
     }
@@ -91,9 +76,6 @@ function parseCommandLineArgs(
   };
 }
 
-/**
- * Read settings
- */
 function loadLocalSettings(): any {
   try {
     if (fs.existsSync(settingsFilePath)) {
@@ -114,9 +96,6 @@ function loadLocalSettings(): any {
   return null;
 }
 
-/**
- * Save settings
- */
 function saveLocalSettings(
   settings: any
 ): boolean {
@@ -149,9 +128,6 @@ function saveLocalSettings(
   }
 }
 
-/**
- * Create FLIPLY window
- */
 async function createWindow(
   display?: Electron.Display,
   ssArgs?: ScreenSaverArgs
@@ -179,17 +155,8 @@ async function createWindow(
 
     webPreferences: {
 
-      /*
-       * IMPORTANT:
-       *
-       * Electron is now bundled with esbuild.
-       *
-       * Main:
-       * electron-dist/main.cjs
-       *
-       * Preload:
-       * electron-dist/preload.cjs
-       */
+      // IMPORTANT:
+      // Electron build creates preload.cjs
       preload: path.join(
         __dirname,
         'preload.cjs'
@@ -210,9 +177,6 @@ async function createWindow(
   let finalWindowOptions =
     windowOptions;
 
-  /**
-   * Screen Saver
-   */
   if (isScreenSaver) {
 
     const bounds =
@@ -227,11 +191,8 @@ async function createWindow(
       ...windowOptions,
 
       x: bounds.x,
-
       y: bounds.y,
-
       width: bounds.width,
-
       height: bounds.height,
 
       frame: false,
@@ -245,19 +206,13 @@ async function createWindow(
       skipTaskbar: true,
     };
 
-  }
-
-  /**
-   * Screen Saver Configuration
-   */
-  else if (isConfig) {
+  } else if (isConfig) {
 
     finalWindowOptions = {
 
       ...windowOptions,
 
       width: 580,
-
       height: 720,
 
       resizable: false,
@@ -269,23 +224,16 @@ async function createWindow(
       autoHideMenuBar: true,
     };
 
-  }
-
-  /**
-   * Normal Desktop Mode
-   */
-  else {
+  } else {
 
     finalWindowOptions = {
 
       ...windowOptions,
 
       width: 1060,
-
       height: 680,
 
       minWidth: 540,
-
       minHeight: 420,
 
       center: true,
@@ -301,9 +249,6 @@ async function createWindow(
       finalWindowOptions
     );
 
-  /**
-   * Query parameters
-   */
   const queryParams =
     new URLSearchParams();
 
@@ -328,21 +273,22 @@ async function createWindow(
     );
   }
 
+  if (ssArgs?.previewHwnd) {
+    queryParams.set(
+      'hwnd',
+      ssArgs.previewHwnd
+    );
+  }
+
   const queryString =
     queryParams.toString()
       ? `?${queryParams.toString()}`
       : '';
 
-  /**
-   * Development server
-   */
   const devServerUrl =
     process.env.VITE_DEV_SERVER_URL ||
     'http://localhost:3000';
 
-  /**
-   * Production React application
-   */
   const prodPath =
     path.join(
       __dirname,
@@ -350,7 +296,7 @@ async function createWindow(
     );
 
   /**
-   * Load application
+   * Development
    */
   if (
     process.env.NODE_ENV ===
@@ -364,6 +310,9 @@ async function createWindow(
 
   } else {
 
+    /**
+     * Production
+     */
     await win.loadFile(
       prodPath,
       {
@@ -372,9 +321,6 @@ async function createWindow(
     );
   }
 
-  /**
-   * Show window
-   */
   win.once(
     'ready-to-show',
     () => {
@@ -390,16 +336,13 @@ async function createWindow(
   return win;
 }
 
-/**
- * Application lifecycle
- */
 const ssArgs =
   parseCommandLineArgs(
     process.argv
   );
 
 /**
- * Single instance lock
+ * Single instance
  */
 if (
   !ssArgs.isScreenSaver &&
@@ -453,9 +396,7 @@ app.whenReady().then(
     ipcMain.handle(
       'get-battery-status',
       async () => {
-
         return getWindowsBatteryInfo();
-
       }
     );
 
@@ -465,9 +406,7 @@ app.whenReady().then(
     ipcMain.handle(
       'get-settings',
       async () => {
-
         return loadLocalSettings();
-
       }
     );
 
@@ -480,11 +419,9 @@ app.whenReady().then(
         _event,
         settings
       ) => {
-
         return saveLocalSettings(
           settings
         );
-
       }
     );
 
@@ -517,7 +454,7 @@ app.whenReady().then(
     );
 
     /**
-     * Is fullscreen
+     * Fullscreen state
      */
     ipcMain.handle(
       'is-fullscreen',
@@ -536,7 +473,7 @@ app.whenReady().then(
     );
 
     /**
-     * Prevent display sleep
+     * Wake lock
      */
     ipcMain.handle(
       'set-wake-lock',
@@ -581,14 +518,12 @@ app.whenReady().then(
     ipcMain.handle(
       'get-startup',
       async () => {
-
         return getStartupState();
-
       }
     );
 
     /**
-     * Toggle startup
+     * Set startup
      */
     ipcMain.handle(
       'set-startup',
@@ -600,7 +535,6 @@ app.whenReady().then(
         return toggleStartupState(
           enable
         );
-
       }
     );
 
@@ -610,9 +544,7 @@ app.whenReady().then(
     ipcMain.on(
       'exit-screensaver',
       () => {
-
         app.quit();
-
       }
     );
 
@@ -622,14 +554,12 @@ app.whenReady().then(
     ipcMain.on(
       'close-app',
       () => {
-
         app.quit();
-
       }
     );
 
     /**
-     * Screen Saver
+     * Create windows
      */
     if (ssArgs.isScreenSaver) {
 
@@ -651,9 +581,6 @@ app.whenReady().then(
 
     } else {
 
-      /**
-       * Normal desktop app
-       */
       const win =
         await createWindow(
           undefined,
@@ -714,7 +641,6 @@ app.on(
       process.platform !==
       'darwin'
     ) {
-
       app.quit();
     }
   }
