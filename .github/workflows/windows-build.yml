@@ -9,10 +9,11 @@ on:
 
 jobs:
   build-windows:
-    name: Build Windows App, Setup, and Screen Saver (.scr)
+    name: Build FLIPLY Windows App
     runs-on: windows-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -26,6 +27,9 @@ jobs:
 
       - name: Build React Web App
         run: npm run build
+
+      - name: Compile Electron Main Process
+        run: npm run build:electron
 
       - name: Compile Windows Native Screen Saver
         shell: powershell
@@ -50,12 +54,27 @@ jobs:
 
           Write-Host "FLIPLY.scr created successfully."
 
-      - name: Build Windows Installer and Portable EXE
+      - name: Verify Electron files
+        shell: powershell
+        run: |
+          Write-Host "Checking compiled Electron files..."
+
+          if (!(Test-Path "electron-dist\main.cjs")) {
+            throw "electron-dist\main.cjs was not created."
+          }
+
+          if (!(Test-Path "electron-dist\preload.cjs")) {
+            throw "electron-dist\preload.cjs was not created."
+          }
+
+          Write-Host "Electron files created successfully."
+
+      - name: Build Windows Installer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run dist:win
 
-      - name: Verify build files
+      - name: Verify Windows Installer
         shell: powershell
         run: |
           Write-Host "Files in dist-electron:"
@@ -69,6 +88,8 @@ jobs:
             throw "FLIPLY-Portable.exe was not created."
           }
 
+          Write-Host "FLIPLY installer created successfully."
+
       - name: Copy Screen Saver
         shell: powershell
         run: |
@@ -77,12 +98,11 @@ jobs:
             -Destination "dist-electron\FLIPLY.scr" `
             -Force
 
-      - name: Upload FLIPLY Windows Build
+      - name: Upload FLIPLY Installer
         uses: actions/upload-artifact@v4
         with:
-          name: FLIPLY-Windows-Binaries
+          name: FLIPLY-Windows
           path: |
             dist-electron/FLIPLY-Setup.exe
-            dist-electron/FLIPLY-Portable.exe
             dist-electron/FLIPLY.scr
           if-no-files-found: error
