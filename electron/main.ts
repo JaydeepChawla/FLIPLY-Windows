@@ -29,14 +29,6 @@ const settingsFilePath = path.join(
 
 /**
  * Parse Windows Command Line arguments
- *
- * Supports:
- * /s
- * /c
- * /c:<HWND>
- * /p <HWND>
- * --screensaver
- * --screensaver-config
  */
 function parseCommandLineArgs(
   argv: string[]
@@ -46,7 +38,6 @@ function parseCommandLineArgs(
   let isScreenSaver = false;
   let isPreview = false;
   let isConfig = false;
-
   let previewHwnd: string | undefined;
 
   for (let i = 0; i < args.length; i++) {
@@ -70,8 +61,11 @@ function parseCommandLineArgs(
       isConfig = true;
     }
 
-    // /p <HWND> : Preview in Screen Saver dialog
-    else if (arg === '/p' || arg === '-p') {
+    // /p <HWND> : Preview
+    else if (
+      arg === '/p' ||
+      arg === '-p'
+    ) {
       isPreview = true;
 
       if (i + 1 < args.length) {
@@ -81,7 +75,9 @@ function parseCommandLineArgs(
     }
 
     // /p:<HWND>
-    else if (arg.startsWith('/p:')) {
+    else if (
+      arg.startsWith('/p:')
+    ) {
       isPreview = true;
       previewHwnd = arg.substring(3);
     }
@@ -96,7 +92,7 @@ function parseCommandLineArgs(
 }
 
 /**
- * Read settings from local JSON file
+ * Read settings
  */
 function loadLocalSettings(): any {
   try {
@@ -119,7 +115,7 @@ function loadLocalSettings(): any {
 }
 
 /**
- * Save settings to local JSON file
+ * Save settings
  */
 function saveLocalSettings(
   settings: any
@@ -134,7 +130,11 @@ function saveLocalSettings(
 
     fs.writeFileSync(
       settingsFilePath,
-      JSON.stringify(settings, null, 2),
+      JSON.stringify(
+        settings,
+        null,
+        2
+      ),
       'utf-8'
     );
 
@@ -150,12 +150,13 @@ function saveLocalSettings(
 }
 
 /**
- * Create a window for normal or screen saver mode
+ * Create FLIPLY window
  */
 async function createWindow(
   display?: Electron.Display,
   ssArgs?: ScreenSaverArgs
 ): Promise<BrowserWindow> {
+
   const isScreenSaver =
     ssArgs?.isScreenSaver ?? false;
 
@@ -167,7 +168,9 @@ async function createWindow(
     '../public/icons/icon-512.png'
   );
 
-  const windowOptions: Electron.BrowserWindowConstructorOptions = {
+  const windowOptions:
+    Electron.BrowserWindowConstructorOptions = {
+
     title: 'FLIPLY — Flip Clock',
 
     icon: fs.existsSync(iconPath)
@@ -175,14 +178,16 @@ async function createWindow(
       : undefined,
 
     webPreferences: {
-      /**
+
+      /*
        * IMPORTANT:
-       * Electron main process is bundled to:
        *
+       * Electron is now bundled with esbuild.
+       *
+       * Main:
        * electron-dist/main.cjs
        *
-       * and preload is bundled to:
-       *
+       * Preload:
        * electron-dist/preload.cjs
        */
       preload: path.join(
@@ -191,61 +196,96 @@ async function createWindow(
       ),
 
       contextIsolation: true,
+
       nodeIntegration: false,
+
       sandbox: false,
     },
 
     backgroundColor: '#050505',
+
     show: false,
   };
 
   let finalWindowOptions =
     windowOptions;
 
+  /**
+   * Screen Saver
+   */
   if (isScreenSaver) {
-    // Screen Saver Mode
-    const bounds = display
-      ? display.bounds
-      : screen.getPrimaryDisplay().bounds;
+
+    const bounds =
+      display
+        ? display.bounds
+        : screen
+            .getPrimaryDisplay()
+            .bounds;
 
     finalWindowOptions = {
+
       ...windowOptions,
 
       x: bounds.x,
+
       y: bounds.y,
 
       width: bounds.width,
+
       height: bounds.height,
 
       frame: false,
+
       fullscreen: true,
+
       alwaysOnTop: true,
+
       kiosk: true,
+
       skipTaskbar: true,
     };
-  } else if (isConfig) {
-    // Screen Saver Configuration
+
+  }
+
+  /**
+   * Screen Saver Configuration
+   */
+  else if (isConfig) {
+
     finalWindowOptions = {
+
       ...windowOptions,
 
       width: 580,
+
       height: 720,
 
       resizable: false,
+
       minimizable: false,
+
       maximizable: false,
 
       autoHideMenuBar: true,
     };
-  } else {
-    // Normal Desktop Mode
+
+  }
+
+  /**
+   * Normal Desktop Mode
+   */
+  else {
+
     finalWindowOptions = {
+
       ...windowOptions,
 
       width: 1060,
+
       height: 680,
 
       minWidth: 540,
+
       minHeight: 420,
 
       center: true,
@@ -256,9 +296,10 @@ async function createWindow(
     };
   }
 
-  const win = new BrowserWindow(
-    finalWindowOptions
-  );
+  const win =
+    new BrowserWindow(
+      finalWindowOptions
+    );
 
   /**
    * Query parameters
@@ -302,10 +343,11 @@ async function createWindow(
   /**
    * Production React application
    */
-  const prodPath = path.join(
-    __dirname,
-    '../dist/index.html'
-  );
+  const prodPath =
+    path.join(
+      __dirname,
+      '../dist/index.html'
+    );
 
   /**
    * Load application
@@ -315,10 +357,13 @@ async function createWindow(
       'development' ||
     !app.isPackaged
   ) {
+
     await win.loadURL(
       `${devServerUrl}${queryString}`
     );
+
   } else {
+
     await win.loadFile(
       prodPath,
       {
@@ -328,11 +373,12 @@ async function createWindow(
   }
 
   /**
-   * Show window when ready
+   * Show window
    */
   win.once(
     'ready-to-show',
     () => {
+
       win.show();
 
       if (isScreenSaver) {
@@ -345,54 +391,58 @@ async function createWindow(
 }
 
 /**
- * Application Lifecycle
+ * Application lifecycle
  */
-
 const ssArgs =
   parseCommandLineArgs(
     process.argv
   );
 
 /**
- * Single Instance Lock
- *
- * Screen saver can use multiple
- * windows for multiple monitors.
+ * Single instance lock
  */
 if (
   !ssArgs.isScreenSaver &&
   !ssArgs.isPreview
 ) {
+
   const gotTheLock =
     app.requestSingleInstanceLock();
 
   if (!gotTheLock) {
+
     app.quit();
+
     process.exit(0);
-  }
 
-  app.on(
-    'second-instance',
-    () => {
-      const primary =
-        mainWindows[0];
+  } else {
 
-      if (primary) {
-        if (
-          primary.isMinimized()
-        ) {
-          primary.restore();
+    app.on(
+      'second-instance',
+      () => {
+
+        const primary =
+          mainWindows[0];
+
+        if (primary) {
+
+          if (
+            primary.isMinimized()
+          ) {
+            primary.restore();
+          }
+
+          primary.show();
+
+          primary.focus();
         }
-
-        primary.show();
-        primary.focus();
       }
-    }
-  );
+    );
+  }
 }
 
 /**
- * Electron Ready
+ * Electron ready
  */
 app.whenReady().then(
   async () => {
@@ -403,7 +453,9 @@ app.whenReady().then(
     ipcMain.handle(
       'get-battery-status',
       async () => {
+
         return getWindowsBatteryInfo();
+
       }
     );
 
@@ -413,12 +465,14 @@ app.whenReady().then(
     ipcMain.handle(
       'get-settings',
       async () => {
+
         return loadLocalSettings();
+
       }
     );
 
     /**
-     * Save Settings
+     * Save settings
      */
     ipcMain.handle(
       'save-settings',
@@ -426,22 +480,26 @@ app.whenReady().then(
         _event,
         settings
       ) => {
+
         return saveLocalSettings(
           settings
         );
+
       }
     );
 
     /**
-     * Toggle Fullscreen
+     * Toggle fullscreen
      */
     ipcMain.handle(
       'toggle-fullscreen',
       async (event) => {
+
         const win =
-          BrowserWindow.fromWebContents(
-            event.sender
-          );
+          BrowserWindow
+            .fromWebContents(
+              event.sender
+            );
 
         if (!win) {
           return false;
@@ -459,15 +517,17 @@ app.whenReady().then(
     );
 
     /**
-     * Check Fullscreen
+     * Is fullscreen
      */
     ipcMain.handle(
       'is-fullscreen',
       async (event) => {
+
         const win =
-          BrowserWindow.fromWebContents(
-            event.sender
-          );
+          BrowserWindow
+            .fromWebContents(
+              event.sender
+            );
 
         return win
           ? win.isFullScreen()
@@ -476,7 +536,7 @@ app.whenReady().then(
     );
 
     /**
-     * Wake Lock
+     * Prevent display sleep
      */
     ipcMain.handle(
       'set-wake-lock',
@@ -490,6 +550,7 @@ app.whenReady().then(
           if (
             wakeLockId === null
           ) {
+
             wakeLockId =
               powerSaveBlocker.start(
                 'prevent-display-sleep'
@@ -501,6 +562,7 @@ app.whenReady().then(
           if (
             wakeLockId !== null
           ) {
+
             powerSaveBlocker.stop(
               wakeLockId
             );
@@ -514,17 +576,19 @@ app.whenReady().then(
     );
 
     /**
-     * Startup State
+     * Startup state
      */
     ipcMain.handle(
       'get-startup',
       async () => {
+
         return getStartupState();
+
       }
     );
 
     /**
-     * Toggle Startup
+     * Toggle startup
      */
     ipcMain.handle(
       'set-startup',
@@ -532,39 +596,42 @@ app.whenReady().then(
         _event,
         enable: boolean
       ) => {
+
         return toggleStartupState(
           enable
         );
+
       }
     );
 
     /**
-     * Exit Screen Saver
+     * Exit screen saver
      */
     ipcMain.on(
       'exit-screensaver',
       () => {
+
         app.quit();
+
       }
     );
 
     /**
-     * Close Application
+     * Close app
      */
     ipcMain.on(
       'close-app',
       () => {
+
         app.quit();
+
       }
     );
 
     /**
-     * Launch Screen Saver
-     * on all monitors
+     * Screen Saver
      */
-    if (
-      ssArgs.isScreenSaver
-    ) {
+    if (ssArgs.isScreenSaver) {
 
       const displays =
         screen.getAllDisplays();
@@ -585,7 +652,7 @@ app.whenReady().then(
     } else {
 
       /**
-       * Normal FLIPLY Desktop App
+       * Normal desktop app
        */
       const win =
         await createWindow(
@@ -596,14 +663,16 @@ app.whenReady().then(
       mainWindows.push(win);
 
       /**
-       * System Tray
+       * System tray
        */
       createTray(
         win,
         () => {
+
           win.webContents.send(
             'open-settings'
           );
+
         }
       );
     }
@@ -616,7 +685,8 @@ app.whenReady().then(
       async () => {
 
         if (
-          BrowserWindow.getAllWindows()
+          BrowserWindow
+            .getAllWindows()
             .length === 0
         ) {
 
@@ -644,6 +714,7 @@ app.on(
       process.platform !==
       'darwin'
     ) {
+
       app.quit();
     }
   }
