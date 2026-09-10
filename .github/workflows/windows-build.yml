@@ -2,9 +2,9 @@ name: Build FLIPLY Windows Release
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build React Web App
         run: npm run build
@@ -30,11 +30,26 @@ jobs:
       - name: Compile Windows Native Screen Saver (.scr)
         shell: powershell
         run: |
-          if (!(Test-Path "build")) { New-Item -ItemType Directory -Path "build" -Force }
+          if (!(Test-Path "build")) {
+            New-Item -ItemType Directory -Path "build" -Force
+          }
+
           $csc = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+
           Write-Host "Compiling FLIPLY.scr with $csc ..."
-          & $csc /target:winexe /optimize+ /platform:anycpu /out:build\FLIPLY.scr /reference:System.Windows.Forms.dll,System.Drawing.dll electron\screensaver\FLIPLY_ScreenSaver.cs
-          if (!(Test-Path "build\FLIPLY.scr")) { throw "Failed to create FLIPLY.scr" }
+
+          & $csc `
+            /target:winexe `
+            /optimize+ `
+            /platform:anycpu `
+            /out:build\FLIPLY.scr `
+            /reference:System.Windows.Forms.dll,System.Drawing.dll `
+            electron\screensaver\FLIPLY_ScreenSaver.cs
+
+          if (!(Test-Path "build\FLIPLY.scr")) {
+            throw "Failed to create FLIPLY.scr"
+          }
+
           Write-Host "FLIPLY.scr generated successfully."
 
       - name: Package Windows Executables & Installer
@@ -45,8 +60,14 @@ jobs:
       - name: Copy FLIPLY.scr to artifacts directory
         shell: powershell
         run: |
-          if (!(Test-Path "dist-electron")) { New-Item -ItemType Directory -Path "dist-electron" -Force }
-          Copy-Item -Path "build\FLIPLY.scr" -Destination "dist-electron\FLIPLY.scr" -Force
+          if (!(Test-Path "dist-electron")) {
+            New-Item -ItemType Directory -Path "dist-electron" -Force
+          }
+
+          Copy-Item `
+            -Path "build\FLIPLY.scr" `
+            -Destination "dist-electron\FLIPLY.scr" `
+            -Force
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
