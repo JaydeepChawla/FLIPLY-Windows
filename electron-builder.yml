@@ -1,20 +1,28 @@
 appId: com.fliply.clock
 productName: FLIPLY
 copyright: Copyright © 2026 FLIPLY
+
 directories:
   output: dist-electron
   buildResources: build
 
 files:
   - dist/**/*
-  - electron/**/*
+  - electron-dist/**/*
+  - public/icons/**/*
   - package.json
+  - "!**/*.map"
+  - "!**/*.md"
+  - "!**/*.txt"
 
 extraResources:
   - from: build/FLIPLY.scr
     to: FLIPLY.scr
     filter:
-      - '**/*'
+      - "**/*"
+
+asar: true
+compression: maximum
 
 win:
   target:
